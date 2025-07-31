@@ -3,99 +3,125 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SKU Image Search</title>
+  <title>SKU Admin Panel</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 20px;
-      background-color: #f5f5f5;
+      padding: 2rem;
+      background: #f4f4f4;
     }
     .container {
-      max-width: 600px;
+      max-width: 500px;
       margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-    input {
-      width: 70%;
-      padding: 10px;
-      margin-right: 10px;
-    }
-    button {
-      padding: 10px 20px;
-    }
-    .result {
-      margin-top: 20px;
-    }
-    img {
-      max-width: 100%;
-      height: auto;
-    }
-    table {
-      margin-top: 10px;
-      border-collapse: collapse;
+    .hidden { display: none; }
+    label, input, select {
+      display: block;
+      margin-bottom: 1rem;
       width: 100%;
     }
-    td, th {
-      padding: 8px;
-      border: 1px solid #ddd;
-      text-align: center;
+    button {
+      padding: 0.7rem;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    pre {
+      background: #eee;
+      padding: 1rem;
+      border-radius: 5px;
+      overflow: auto;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>SKU Image Search</h1>
-    <input type="text" id="skuInput" placeholder="Enter SKU number" />
-    <button onclick="searchSKU()">Search</button>
-    <div id="result" class="result"></div>
+  <div class="container" id="password-section">
+    <h2>Enter Password</h2>
+    <input type="password" id="password" placeholder="Enter password" />
+    <button onclick="checkPassword()">Submit</button>
+    <p id="error" style="color: red;"></p>
+  </div>
+
+  <div class="container hidden" id="form-section">
+    <h2>SKU Entry</h2>
+    <form id="skuForm">
+      <label>SKU Number</label>
+      <input type="text" id="sku" required />
+
+      <label>Image Link (Google Drive direct)</label>
+      <input type="text" id="image" required />
+
+      <label>OMS</label>
+      <select id="oms">
+        <option value="Yes">Yes</option>
+        <option value="No">No</option>
+      </select>
+
+      <label>Daraz</label>
+      <select id="daraz">
+        <option value="Yes">Yes</option>
+        <option value="No">No</option>
+      </select>
+
+      <label>Imart</label>
+      <select id="imart">
+        <option value="Yes">Yes</option>
+        <option value="No">No</option>
+      </select>
+
+      <label>Stencillo</label>
+      <select id="stencillo">
+        <option value="Yes">Yes</option>
+        <option value="No">No</option>
+      </select>
+
+      <label>Etsy</label>
+      <select id="etsy">
+        <option value="Yes">Yes</option>
+        <option value="No">No</option>
+      </select>
+
+      <button type="submit">Generate Entry</button>
+    </form>
+    <h3>Generated JSON</h3>
+    <pre id="output"></pre>
   </div>
 
   <script>
-    const data = [
-      {
-        sku: "685",
-        image: "https://imartdecor.com/cdn/shop/files/685_1200x.jpg?v=1753704208",
-        oms: "Yes",
-        im_daraz: "No",
-        imart: "Yes",
-        stencillo: "No",
-        etsy: "Yes"
-      },
-      {
-        sku: "4266-2",
-        image: "https://imartdecor.com/cdn/shop/files/4266-2_1200x.jpg?v=1739281910",
-        oms: "No",
-        im_daraz: "Yes",
-        imart: "No",
-        stencillo: "Yes",
-        etsy: "No"
-      }
-    ];
+    const correctPassword = '!@#$%^&*()';
 
-    function searchSKU() {
-      const input = document.getElementById("skuInput").value.trim();
-      const resultDiv = document.getElementById("result");
-      const skuData = data.find(item => item.sku === input);
-
-      if (skuData) {
-        resultDiv.innerHTML = `
-          <img src="${skuData.image}" alt="SKU Image" />
-          <table>
-            <tr><th>SKU</th><td>${skuData.sku}</td></tr>
-            <tr><th>OMS</th><td>${skuData.oms}</td></tr>
-            <tr><th>IM Daraz</th><td>${skuData.im_daraz}</td></tr>
-            <tr><th>Imart</th><td>${skuData.imart}</td></tr>
-            <tr><th>Stencillo</th><td>${skuData.stencillo}</td></tr>
-            <tr><th>Etsy</th><td>${skuData.etsy}</td></tr>
-          </table>
-        `;
+    function checkPassword() {
+      const input = document.getElementById('password').value;
+      if (input === correctPassword) {
+        document.getElementById('password-section').classList.add('hidden');
+        document.getElementById('form-section').classList.remove('hidden');
       } else {
-        resultDiv.innerHTML = `<p>No results found for SKU: ${input}</p>`;
+        document.getElementById('error').innerText = 'Incorrect password.';
       }
     }
+
+    document.getElementById('skuForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const data = {
+        sku: document.getElementById('sku').value.trim(),
+        image: document.getElementById('image').value.trim(),
+        OMS: document.getElementById('oms').value,
+        Daraz: document.getElementById('daraz').value,
+        Imart: document.getElementById('imart').value,
+        Stencillo: document.getElementById('stencillo').value,
+        Etsy: document.getElementById('etsy').value,
+      };
+      document.getElementById('output').innerText = JSON.stringify(data, null, 2);
+    });
   </script>
 </body>
 </html>
